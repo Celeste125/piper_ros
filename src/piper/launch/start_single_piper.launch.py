@@ -31,7 +31,7 @@ def generate_launch_description():
 
     gripper_val_mutiple_arg = DeclareLaunchArgument(
         'gripper_val_mutiple',
-        default_value='1',
+        default_value='2',
         description='gripper'
     )
 

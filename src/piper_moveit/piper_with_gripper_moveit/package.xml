@@ -45,6 +45,10 @@
   <exec_depend>warehouse_ros_mongo</exec_depend>
   <exec_depend>xacro</exec_depend>
 
+  <depend>moveit_ros_planning_interface</depend>
+  <depend>rclcpp</depend>
+  <depend>geometry_msgs</depend>
+
 
   <export>
       <build_type>ament_cmake</build_type>

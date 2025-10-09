@@ -30,6 +30,10 @@ setup(
             'piper_single_ctrl = piper.piper_ctrl_single_node:main',
             'piper_ms_ctrl = piper.piper_start_ms_node:main',
             'piper_read_master = piper.piper_read_master_node:main',
+            'piper_cartesian_controller = piper.piper_cartesian_controller:main',
+            'send_cartesian_command = piper.send_cartesian_command:main',
+            'piper_joint_controller_sim = piper.piper_joint_controller_sim:main',
+            'piper_keyboard_control = piper.piper_keyboard_control:main',
         ],
     },
 )
