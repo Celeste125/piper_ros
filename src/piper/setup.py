@@ -34,6 +34,7 @@ setup(
             'send_cartesian_command = piper.send_cartesian_command:main',
             'piper_joint_controller_sim = piper.piper_joint_controller_sim:main',
             'piper_keyboard_control = piper.piper_keyboard_control:main',
+            'piper_read_slave_joint = piper.piper_read_slave_joint:main',
         ],
     },
 )

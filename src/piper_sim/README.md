@@ -73,13 +73,13 @@ cd ~/.mujoco/mujoco210/bin
 1、下载源码
 
 ```bash
-git https://github.com/openai/mujoco-py.git
+git clone https://github.com/openai/mujoco-py.git
 ```
 
 2、安装(这一部可以在conda环境中进行)
 
 ```bash
-cd ~/mujoco-py
+cd mujoco-py
 pip3 install -U 'mujoco-py<2.2,>=2.1'
 pip3 install -r requirements.txt
 pip3 install -r requirements.dev.txt

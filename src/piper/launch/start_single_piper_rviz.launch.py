@@ -12,6 +12,7 @@ import os
 
 
 def generate_launch_description():
+    log_level = 'warn'
     # Get the path to the piper_description package
     piper_description_path = os.path.join(
         get_package_share_directory('piper_description'),
@@ -68,6 +69,7 @@ def generate_launch_description():
             {'gripper_val_mutiple': LaunchConfiguration('gripper_val_mutiple')},
             {'gripper_exist': LaunchConfiguration('gripper_exist')}
         ],
+        ros_arguments=['--log-level', log_level],
         remappings=[
             ('joint_ctrl_single', '/joint_states')
         ]

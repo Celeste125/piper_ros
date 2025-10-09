@@ -215,7 +215,7 @@ colcon build
 source install/setup.bash
 ```
 
-### 3.1 单个机械臂
+### 3.1 单个机械臂启动控制
 
 节点名`piper_single_ctrl`
 
@@ -239,11 +239,42 @@ gripper_val_mutiple:设置夹爪控制倍数
 
 启动控制节点，以下几种方式任选一种运行即可
 
+ros2 run 方式
+
 ```shell
 # 启动节点
 ros2 run piper piper_single_ctrl --ros-args -p can_port:=can0 -p auto_enable:=false -p gripper_exist:=true -p gripper_val_mutiple:=2
+# 设置日志等级 --log-level DEBUG/INFO/WARN/ERROR
+ros2 run piper piper_single_ctrl --ros-args -p can_port:=can0 -p auto_enable:=false -p gripper_exist:=true -p gripper_val_mutiple:=2 --log-level WARN
+```
+
+`ros2 topic list`
+
+```bash
+/arm_status #机械臂状态，详见下文
+/enable_flag #使能标志位，发送给节点，发送true用来使能
+/end_pose #机械臂末端位姿状态反馈
+/end_pose_stamped #带有时间戳的endpose消息
+/joint_ctrl #机械臂有关控制消息的反馈
+/joint_ctrl_single #订阅关节消息，给这个消息发送关节位置能控制机械臂运动
+/joint_states_single #机械臂关节状态反馈
+/joint_states_feedback #同上，只是修改了topic名字
+/pos_cmd #末端控制消息， xyzrpy，夹爪单位为m，mode1和mode2参数默认0即可
+```
+
+ros2 launch 方式
+
+launch remap了`/joint_ctrl_single`topic，令`/joint_states`为控制机械臂的消息，方便与rviz连通，令rviz能够控制实际机械臂
+
+```shell
+# 启动节点
+ros2 run piper piper_single_ctrl --ros-args -p can_port:=can0 -p auto_enable:=false -p gripper_exist:=true -p gripper_val_mutiple:=2
+# 设置日志等级 --log-level DEBUG/INFO/WARN/ERROR
+ros2 run piper piper_single_ctrl --ros-args -p can_port:=can0 -p auto_enable:=false -p gripper_exist:=true -p gripper_val_mutiple:=2 --log-level WARN
 # 也可以用launch节点
 ros2 launch piper start_single_piper.launch.py can_port:=can0 auto_enable:=false gripper_exist:=false gripper_val_mutiple:=2
+# 增加设定log_level
+ros2 launch piper start_single_piper.launch.py can_port:=can0 auto_enable:=false gripper_exist:=false gripper_val_mutiple:=2 log_level:=warn
 # 或，会以默认参数运行
 ros2 launch piper start_single_piper.launch.py
 # 也可以用rviz开启控制,需要更改的参数如上
@@ -256,9 +287,12 @@ ros2 launch piper start_single_piper_rviz.launch.py
 /arm_status #机械臂状态，详见下文
 /enable_flag #使能标志位，发送给节点，发送true用来使能
 /end_pose #机械臂末端位姿状态反馈
+/end_pose_stamped #带有时间戳的endpose消息
+/joint_ctrl #机械臂有关控制消息的反馈
 /joint_states #订阅关节消息，给这个消息发送关节位置能控制机械臂运动
 /joint_states_single #机械臂关节状态反馈
-/pos_cmd #末端控制消息
+/joint_states_feedback #同上，只是修改了topic名字
+/pos_cmd #末端控制消息， xyzrpy，夹爪单位为m，mode1和mode2参数默认0即可
 ```
 
 ros2 service list
@@ -300,7 +334,141 @@ ros2 topic pub /joint_states sensor_msgs/msg/JointState "{header: {stamp: {sec: 
 
 ```
 
-### 3.2 piper自定义消息
+### 3.2 单个机械臂启动读取关节消息并在rviz中跟随显示
+
+启动读取关节数据节点
+
+```bash
+# 有夹爪
+ros2 run piper piper_read_slave_joint --ros-args -p can_port:=can0 -p gripper_exist:=true
+```
+
+```bash
+# 无夹爪
+ros2 run piper piper_read_slave_joint --ros-args -p can_port:=can0 -p gripper_exist:=false
+```
+
+执行后仅有一个`/joint_states`用作机械臂消息的反馈
+
+其中有夹爪启动的话消息内容会有`joint7`,`joint8`的数据，这个是为了rviz作为跟随显示功能的时候所需要的
+
+启动rviz显示跟随launch
+
+```bash
+# 有夹爪
+ros2 launch piper_description  display_urdf_follow.launch.py
+```
+
+```bash
+# 无夹爪
+ros2 launch piper_description  display_no_gripper_urdf_follow.launch.py
+```
+
+note:**如果只启动rviz显示，不启动关节数据读取，会导致没有/joint_states数据发布，rviz中的模型的所有link会在原点聚集，无法正常显示**
+
+如果不想启动实机机械臂数据读取节点，可以只启动rviz的显示launch，然后在其他程序中或者终端发布`joint_states`topic，示例如下
+
+```bash
+# 有夹爪
+ros2 topic pub /joint_states sensor_msgs/msg/JointState "header:
+  stamp:
+    sec: 1757669668
+    nanosec: 196177482
+  frame_id: ''
+name: ['joint1','joint2','joint3','joint4','joint5','joint6','gripper','joint7','joint8']
+position: [0,0,0,0,0,0,0,0,0]
+velocity: [0,0,0,0,0,0,0,0,0]
+effort: [0,0,0,0,0,0,0,0,0]" 
+```
+
+```bash
+# 无夹爪
+ros2 topic pub /joint_states sensor_msgs/msg/JointState "header:
+  stamp:
+    sec: 1757669668
+    nanosec: 196177482
+  frame_id: ''
+name: ['joint1','joint2','joint3','joint4','joint5','joint6']
+position: [0,0,0,0,0,0]
+velocity: [0,0,0,0,0,0]
+effort: [0,0,0,0,0,0]" 
+```
+
+注意：**header中的时间戳为必需，否则会导致rviz显示的模型依旧不正常**
+
+### 3.3 同时控制双臂
+
+需要每条臂各自链接一个can模块，然后激活两个can模块
+
+launch内读取的两个can模块名称都为`can0`，需要自行手动修改为左右臂在系统中的名称，查看方法如下：
+
+```bash
+ifconfig -a | grep can
+```
+
+执行双臂启动
+
+```bash
+# 默认是启动两个节点都读取can0消息
+ros2 launch piper start_two_piper.launch.py auto_enable:=false
+# 自定义读取的can端口名称
+ros2 launch piper start_two_piper.launch.py can_left_port:=can_left can_right_port:=can_right auto_enable:=true girpper_exist:=true
+```
+
+- **launch内部做了topic的remap**
+
+```python
+# piper_left_node
+remappings=[
+            # 控制
+            ('pos_cmd', '/pos_cmd_left'),
+            ('joint_ctrl_single', '/joint_ctrl_cmd_left'),
+            # 反馈
+            ('joint_states_single', '/joint_states_left'),
+            ('joint_states_feedback', '/joint_left'),
+            ('joint_ctrl', '/joint_states_ctrl_left'),
+            ('arm_status', '/arm_status_left'),
+            ('end_pose', '/end_pose_left'),
+            ('end_pose_stamped', '/end_pose_stamped_left'),
+        ]
+# piper_right_node
+remappings=[
+            # 控制
+            ('pos_cmd', '/pos_cmd_right'),
+            ('joint_ctrl_single', '/joint_ctrl_cmd_right'),
+            # 反馈
+            ('joint_states_single', '/joint_states_right'),
+            ('joint_states_feedback', '/joint_right'),
+            ('joint_ctrl', '/joint_states_ctrl_right'),
+            ('arm_status', '/arm_status_right'),
+            ('end_pose', '/end_pose_right'),
+            ('end_pose_stamped', '/end_pose_stamped_right'),
+        ]
+```
+
+对照上文单节点的topic说明对应remap后的topic含义
+
+```bash
+/arm_status_left
+/arm_status_right
+/enable_flag
+/end_pose_left
+/end_pose_right
+/end_pose_stamped_left
+/end_pose_stamped_right
+/joint_ctrl_cmd_left
+/joint_ctrl_cmd_right
+/joint_left
+/joint_right
+/joint_states_ctrl_left
+/joint_states_ctrl_right
+/joint_states_left
+/joint_states_right
+/pos_cmd_left
+/pos_cmd_right
+```
+
+### 3.4 piper自定义消息
 
 ros功能包`piper_msgs`
 

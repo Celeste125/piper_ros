@@ -5,7 +5,7 @@ from launch_ros.actions import Node
 joint_state_publisher = Node(
     package="joint_state_publisher",
     executable="joint_state_publisher",
-    parameters=[{"publish_rate": 500}]  # 修改频率
+    parameters=[{"publish_rate": 200}]  # 修改频率
 )
 
 def generate_launch_description():

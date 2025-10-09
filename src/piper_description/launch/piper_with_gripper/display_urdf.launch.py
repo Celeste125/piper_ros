@@ -10,7 +10,7 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 def generate_launch_description():
     urdf_tutorial_path = get_package_share_path('piper_description')
-    default_model_path = urdf_tutorial_path / 'urdf/piper_description.xacro'
+    default_model_path = urdf_tutorial_path / 'urdf/piper_description.urdf'
     default_rviz_config_path = urdf_tutorial_path / 'rviz/piper_ctrl.rviz'
 
     gui_arg = DeclareLaunchArgument(name='gui', default_value='true', choices=['true', 'false'],
@@ -39,6 +39,7 @@ def generate_launch_description():
     joint_state_publisher_gui_node = Node(
         package='joint_state_publisher_gui',
         executable='joint_state_publisher_gui',
+        parameters=[{'rate': 200.0}],
         condition=IfCondition(LaunchConfiguration('gui'))
     )
 
