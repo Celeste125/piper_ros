@@ -44,6 +44,45 @@ install(
   # PATTERN "*.launch.py"  # Opcional: ser más específico
 )
 
+# Crear librería de cinemática primero
+add_library(piper_kinematics_lib
+  src/piper_forward_kinematics.cpp
+  src/piper_jacobian_ik.cpp
+  src/piper_analytical_ik.cpp
+)
+target_include_directories(piper_kinematics_lib PUBLIC
+  include
+  ${Eigen3_INCLUDE_DIRS}
+)
+ament_target_dependencies(piper_kinematics_lib
+  rclcpp
+  Eigen3
+)
+
+# Luego el ejecutable cartesian_controller
+add_executable(cartesian_controller src/cartesian_controller.cpp)
+target_include_directories(cartesian_controller PRIVATE
+  include
+  ${Eigen3_INCLUDE_DIRS}
+)
+ament_target_dependencies(cartesian_controller 
+  rclcpp 
+  std_msgs 
+  geometry_msgs
+  sensor_msgs
+  tf2
+  tf2_ros
+  tf2_geometry_msgs
+)
+
+# Linkear contra nuestra librería
+target_link_libraries(cartesian_controller piper_kinematics_lib)
+
+# Instalar ambos
+install(TARGETS piper_kinematics_lib cartesian_controller
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
