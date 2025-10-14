@@ -1,1 +1,26 @@
 README.MD\nREADME(EN).MD
+# ROS 2
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+
+# C/C++
+*.o
+*.a
+*.so
+
+# VS Code
+.vscode/
+
+# System
+.DS_Store
+Thumbs.db
+
+README(N).MD

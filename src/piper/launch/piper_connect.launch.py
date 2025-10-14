@@ -68,21 +68,6 @@ def generate_launch_description():
         ]
     )
 
-    # NUEVO: Controlador Cartesian
-    cartesian_controller_node = Node(
-        package='piper',
-        executable='piper_cartesian_controller',
-        name='piper_cartesian_controller',
-        output='screen',
-        parameters=[]
-    )
-
-    keyboard_node = Node(
-        package='piper',
-        executable='piper_keyboard_control',
-        name='piper_keyboard_control',
-        output='screen'
-    )
 
     return LaunchDescription([
         can_port_arg,

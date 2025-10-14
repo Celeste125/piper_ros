@@ -33,8 +33,10 @@ setup(
             'piper_cartesian_controller = piper.piper_cartesian_controller:main',
             'send_cartesian_command = piper.send_cartesian_command:main',
             'piper_joint_controller_sim = piper.piper_joint_controller_sim:main',
-            'piper_keyboard_control = piper.piper_keyboard_control:main',
             'piper_read_slave_joint = piper.piper_read_slave_joint:main',
+            'piper_teleop_joint = piper.piper_teleop_joint:main',
+            'control_manager = piper.control_manager:main',
+            'delta_manager = piper.delta_manager:main',
         ],
     },
 )

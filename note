@@ -35,3 +35,33 @@ ros2 launch piper_kinematics cartesian.launch.py
 
 ros2 run piper_kinematics keyboard_controller.py
 
+
+/////////////////////////////////////////////////////////////////////////
+
+
+
+CORRER LAUNCH DESDE JETSON 
+
+
+bash can_activate.sh can_piper 1000000 "1-2.4:1.0"
+
+correr esto por nodo 
+ros2 run piper piper_single_ctrl --ros-args -p can_port:="can_piper" --ros-args -p auto_enable:="false" --ros-args -p griper_exist:="true" --ros-args -p gripper_val_multiple:="2"
+
+
+o solo correr estos 2 launchs launch nadamas
+ros2 launch piper piper_connect.launch.py can_port:=can_piper
+
+ros2 launch piper controller_general.launch.py
+
+
+para FOXGLOVE
+
+
+ros2 run foxglove_bridge foxglove_bridge --port 8765
+
+
+
+
+
+

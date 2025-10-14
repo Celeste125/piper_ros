@@ -62,7 +62,7 @@ public:
         
         // Publicadores
         joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
-            "/joint_states", 10);
+            "/joint_commands_cart", 10);
         ik_status_pub_ = this->create_publisher<std_msgs::msg::Bool>(
             "/ik_status", 10);
         
