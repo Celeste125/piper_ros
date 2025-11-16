@@ -37,6 +37,9 @@ setup(
             'piper_teleop_joint = piper.piper_teleop_joint:main',
             'control_manager = piper.control_manager:main',
             'delta_manager = piper.delta_manager:main',
+            'joystick_controller = piper.joystick_controller:main',
+            'piper_conrol_gamesir = piper.piper_conrol_gamesir:main',
+            
         ],
     },
 )
