@@ -39,6 +39,7 @@ setup(
             'delta_manager = piper.delta_manager:main',
             'joystick_controller = piper.joystick_controller:main',
             'piper_conrol_gamesir = piper.piper_conrol_gamesir:main',
+            'game_controller_manager = piper.game_controller_manager:main',
             
         ],
     },
