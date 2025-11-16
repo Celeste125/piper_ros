@@ -1,6 +1,10 @@
 # Piper ROS – ROS 2 Control Stack for AgileX Piper Arm (Jetson + Humble)
 
-This repository contains the complete ROS 2 control system for the **AgileX Piper robotic arm**, including:
+This repository contains the complete ROS 2 control system for the **AgileX Piper robotic arm**, check the official repositiry:
+https://github.com/agilexrobotics/piper_ros/tree/humble
+
+
+Also this repository include:
 
 - Joint-level control over **CAN**
 - **Cartesian control** (numerical IK / analytical IK)
@@ -15,7 +19,7 @@ Tested on:
 
 ---
 
-## 📦 Repository Structure
+## Repository Structure
 
 ```
 piper_ros/
@@ -48,28 +52,77 @@ piper_ros/
 
 ---
 
-# ⚙️ Installation
+# Installation
 
-### 1. Install dependencies
+## Install dependencies
+
+You can dowloand the dependencies from the official repository mention before or install the dependecies and requerimentes following
+this commands
+
+### System packages
+- ROS 2 Humble
+- python3-can
+- can-utils
+- libopencv-dev
+- ros-humble-joy
+- ros-humble-ros2-control
+- ros-humble-ros2-controllers
+- ros-humble-vision-msgs
+
+### Python packages
+- numpy
+- scipy
+- opencv-python
+- python-can
+
 ```bash
-sudo apt update
-sudo apt install ros-humble-joint-state-publisher                  ros-humble-tf-transformations                  ros-humble-ros2-control                  ros-humble-ros2-controllers                  python3-can
+bash dependencies.sh
+pip3 install -r requirements.txt
+```
+# Run the code 
+First find all the can ports connected to the jetson and activate 
+
+## 1. Enable CAN interface
+```bash
+bash find_all_can_port.sh
+bash can_activate.sh can_piper 1000000 "1-2.4:1.0"      # it can change
 ```
 
-### 2. Enable CAN interface
+## 2. Enable CAN interface
+Run the 2 following launches files 
 ```bash
-sudo ip link set can0 up type can bitrate 1000000
+#  First run this line, rviz will be open, but there will be some errors, it'll be solve with the next line
+
+ros2 launch piper piper_connect.launch.py can_port:=can_piper
+
+#  Run this line, it charge all the urdfs of the robot
+
+ros2 launch piper controller_general.launch.py
+
 ```
 
-### 3. Build the workspace
+## 3. Control wit the gamepad
+To control with the gamepad, first install the dependencies, then connect the gamepad and run the next code.
+ 
 ```bash
-colcon build --symlink-install
-source install/setup.bash
+ros2 run game_controller_manager.py
 ```
+There are 2 modes of control the arm with the game pad 
+
+### Cartesian controller
+You can move the arm in x and z coordinates 
+
+
+### Joint controller
+You can move all the joints of the arm 
+
+
+## 4. Foxglove connection 
+
 
 ---
 
-# 🚀 Joint Control (CAN Mode)
+# Joint Control (CAN Mode)
 
 ### Launch file: `piper_single_ctrl.launch.py`
 
@@ -91,7 +144,7 @@ ros2 launch piper piper_single_ctrl.launch.py
 
 ---
 
-# 🤖 Cartesian Control (IK)
+#  Cartesian Control (IK)
 
 ### Launch file: `cartesian_controller.launch.py`
 
@@ -119,7 +172,7 @@ ros2 launch piper_kinematics cartesian_controller.launch.py
 
 ---
 
-# 🎮 Joystick Teleoperation
+# Joystick Teleoperation
 
 Package: `piper_teleoperation`
 
