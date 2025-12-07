@@ -17,15 +17,15 @@ class PiperTeleopGamepad(Node):
         self.pub_mode = self.create_publisher(String, '/control_mode', 10)
         # --- Subscriber para modo externo ---
         self.sub_mode = self.create_subscription(String, '/control_mode', self.mode_callback, 10)
-        # --- Inicializar pygame ---
+        # --- Initializes pygame ---
         pygame.init()
         pygame.joystick.init()
         if pygame.joystick.get_count() == 0:
-            self.get_logger().error(":x: No se detectó ningún gamepad.")
+            self.get_logger().error(":x: No gamepad detected.")
             exit()
         self.joy = pygame.joystick.Joystick(0)
         self.joy.init()
-        self.get_logger().info(f":white_check_mark: Gamepad detectado: {self.joy.get_name()}")
+        self.get_logger().info(f":white_check_mark: Gamepad detected: {self.joy.get_name()}")
         # --- Parámetros ---
         self.joint_step = 0.05     # rad (incremento)
         self.cart_step = 0.01      # m (incremento)
@@ -40,47 +40,47 @@ class PiperTeleopGamepad(Node):
         self.publish_mode()
     # ============================================================
     def publish_mode(self):
-        """Publica el modo actual en /control_mode"""
+        """Publishes the current mode to /control_mode"""
         msg = String()
         msg.data = "cartesian" if self.mode_cart else "joint"
         self.pub_mode.publish(msg)
     # ============================================================
     def mode_callback(self, msg: String):
-        """Recibe modo externo ('cartesian' o 'joint')"""
+        """Receives external mode ('cartesian' or 'joint')"""
         mode = msg.data.strip().lower()
         if mode == "cartesian" and not self.mode_cart:
             self.mode_cart = True
             self.external_mode_override = True
-            self.get_logger().info(":satellite: Modo cambiado externamente a CARTESIANO :large_green_circle:")
+            self.get_logger().info(":satellite: Mode externally changed to CARTESIAN :large_green_circle:")
         elif mode == "joint" and self.mode_cart:
             self.mode_cart = False
             self.external_mode_override = True
-            self.get_logger().info(":satellite: Modo cambiado externamente a ARTICULAR :large_blue_circle:")
+            self.get_logger().info(":satellite: MMode externally changed to JOINT :large_blue_circle:")
     # ============================================================
     def loop(self):
         pygame.event.pump()
         btn_mode = self.joy.get_button(7)
-        # Cambiar modo con botón (y publicarlo)
+        # Change mode with button and publish it
         if btn_mode and not self.last_btn_mode:
             self.mode_cart = not self.mode_cart
             modo = "cartesian" if self.mode_cart else "joint"
-            self.get_logger().info(f":repeat: Cambiado a modo {modo.upper()}")
+            self.get_logger().info(f":repeat: Switched to {modo.upper()}")
             self.publish_mode()
             self.external_mode_override = False
         self.last_btn_mode = btn_mode
-        # Ejecutar modo activo
+        # Execute active mode
         if self.mode_cart:
             self.handle_cartesian()
         else:
             self.handle_joint_delta()
     # ============================================================
     def handle_joint_delta(self):
-        """Modo articular incremental: publica Δjoint (rad) + gripper absoluto"""
+        """Joint incremental mode: publishes Δjoint (rad) + absolute gripper"""
         axes = [self.joy.get_axis(i) for i in range(self.joy.get_numaxes())]
         hats = [self.joy.get_hat(i) for i in range(self.joy.get_numhats())]
         buttons = [self.joy.get_button(i) for i in range(self.joy.get_numbuttons())]
         dq = [0.0]*6  # Incrementos Δq₁…Δq₆
-        # ---- Joint 1: eje 0 ----
+        # ---- Joint 1: axis 0 ----
         if abs(axes[0]) > self.deadzone:
             dq[0] = self.joint_step * (-1 if axes[0] > 0 else 1)
         # ---- Joint 2: hat x ----
@@ -123,14 +123,16 @@ class PiperTeleopGamepad(Node):
         print(f"  joint8: 0.000")
     # ============================================================
     def handle_cartesian(self):
-        """Modo cartesiano: publica SOLO incrementos (Δx, Δy, Δz)"""
+        """Crtesian mode: publishes only increments (Δx, Δy, Δz)"""
         axes = [self.joy.get_axis(i) for i in range(self.joy.get_numaxes())]
         hat_x, hat_y = self.joy.get_hat(0)
         # --- Ejes ---
         axis_x = 0  # joystick izquierdo horizontal
+        axis_y = 1  # joystick  
         axis_z = 3  # joystick derecho vertical (ajusta si tu mando usa otro)
         dx = self.cart_step * (-1 if axes[axis_x] > 0 else 1) if abs(axes[axis_x]) > self.deadzone else 0.0
-        dy = self.cart_step * hat_y if hat_y != 0 else 0.0
+        #dy = self.cart_step * hat_y if hat_y != 0 else 0.0
+        dy = self.cart_step * (-1 if axes[axis_y] > 0 else 1) if abs(axes[axis_y]) > self.deadzone else 0.0
         dz = self.cart_step * (-1 if axes[axis_z] > 0 else 1) if abs(axes[axis_z]) > self.deadzone else 0.0
         if dx != 0.0 or dy != 0.0 or dz != 0.0:
             msg = Point(x=dx, y=dy, z=dz)

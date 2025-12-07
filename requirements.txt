@@ -1,2 +1,9 @@
 mujoco-py==2.1.2.14
 python_version >= "3.10"
+numpy
+opencv-python
+pyserial
+python-can
+scipy
+piper_sdk
+

@@ -40,6 +40,7 @@ setup(
             'joystick_controller = piper.joystick_controller:main',
             'piper_conrol_gamesir = piper.piper_conrol_gamesir:main',
             'game_controller_manager = piper.game_controller_manager:main',
+            'piper_teleop_final = piper.piper_teleop_final:main',
             
         ],
     },
